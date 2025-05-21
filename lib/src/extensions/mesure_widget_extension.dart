@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 extension MesureWidgetExtension on Widget {
-  Size measureWidget(
-    Widget widget, {
+  Size measureWidget({
     BoxConstraints constraints = const BoxConstraints(),
   }) {
     final pipelineOwner = PipelineOwner();
@@ -12,7 +11,7 @@ extension MesureWidgetExtension on Widget {
     final element = RenderObjectToWidgetAdapter<RenderBox>(
       container: rootView,
       debugShortDescription: '[root]',
-      child: widget,
+      child: this,
     ).attachToRenderTree(buildOwner);
     try {
       rootView.scheduleInitialLayout();
