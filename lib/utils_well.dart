@@ -1,0 +1,18 @@
+library utils_well;
+
+export 'src/extensions/build_context_extension.dart';
+export 'src/extensions/date_time_extension.dart';
+export 'src/extensions/edge_insets_extension.dart';
+export 'src/extensions/future_extension.dart';
+export 'src/extensions/int_extension.dart';
+export 'src/extensions/iterable_extension.dart';
+export 'src/extensions/list_extension.dart';
+export 'src/extensions/map_extension.dart';
+export 'src/extensions/mesure_widget_extension.dart';
+export 'src/extensions/num_extension.dart';
+export 'src/extensions/rect_extension.dart';
+export 'src/extensions/scroll_controller_extension.dart';
+export 'src/extensions/string_extension.dart';
+export 'src/extensions/text_style_extension.dart';
+export 'src/tools/add_post_frame_callback.dart';
+export 'src/tools/on_tap_vibration.dart';
