@@ -2,6 +2,7 @@ library utils_well;
 
 export 'src/extensions/build_context_extension.dart';
 export 'src/extensions/date_time_extension.dart';
+export 'src/extensions/double_to_currency_extension.dart';
 export 'src/extensions/edge_insets_extension.dart';
 export 'src/extensions/future_extension.dart';
 export 'src/extensions/int_extension.dart';
