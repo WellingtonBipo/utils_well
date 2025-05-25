@@ -2,18 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 extension MesureWidgetExtension on Widget {
-  Size measureWidget({
-    BoxConstraints constraints = const BoxConstraints(),
-    MesureWidgetExtensionAncestors widgetAncestors =
-        const MesureWidgetExtensionAncestors(),
-  }) {
+  Size measureWidget({BoxConstraints constraints = const BoxConstraints()}) {
     final pipelineOwner = PipelineOwner();
     final rootView = pipelineOwner.rootNode = _MeasurementView(constraints);
     final buildOwner = BuildOwner(focusManager: FocusManager());
     final element = RenderObjectToWidgetAdapter<RenderBox>(
       container: rootView,
       debugShortDescription: '[root]',
-      child: widgetAncestors._insertAncestors(this),
+      child: this,
     ).attachToRenderTree(buildOwner);
     try {
       rootView.scheduleInitialLayout();
@@ -33,19 +29,6 @@ class MesureWidgetExtensionAncestors {
     this.directionality = TextDirection.ltr,
   });
   final TextDirection? directionality;
-}
-
-extension on MesureWidgetExtensionAncestors {
-  Widget _insertAncestors(Widget widget) {
-    var updatedWidget = widget;
-    if (directionality != null) {
-      updatedWidget = Directionality(
-        textDirection: directionality!,
-        child: widget,
-      );
-    }
-    return updatedWidget;
-  }
 }
 
 class _MeasurementView extends RenderBox
