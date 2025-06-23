@@ -12,8 +12,8 @@ class NumEditingController<T extends num?> extends TextEditingController {
   late NumInputFormatter<T> _formatter;
   NumInputFormatter<T> get formatter => _formatter;
 
-  T get num => _formatter.fromText(text) ?? 0 as T;
-  set num(T value) => text = _formatter.toText(value);
+  T get number => _formatter.fromText(text) ?? 0 as T;
+  set number(T value) => text = _formatter.toText(value);
 
   @override
   set text(String newText) {
