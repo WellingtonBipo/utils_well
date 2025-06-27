@@ -3,34 +3,58 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class NumEditingController<T extends num?> extends TextEditingController {
-  NumEditingController({T? num, NumInputFormatter<T>? formatter}) {
+class NumEditingController<T extends num> extends TextEditingController {
+  NumEditingController({T? number, NumInputFormatter<T>? formatter}) {
     _formatter = formatter ?? NumInputFormatter<T>();
-    text = _formatter.toText(num);
+    _formatter._controller = this;
+    _number = (number, false);
+    super.value = _formatter._editingValue(_formatter.toText(number));
+    _canNotify = true;
   }
 
   late NumInputFormatter<T> _formatter;
   NumInputFormatter<T> get formatter => _formatter;
 
-  T get number => _formatter.fromText(text) ?? 0 as T;
-  set number(T value) => text = _formatter.toText(value);
+  bool _canNotify = false;
+
+  var _oldValue = TextEditingValue.empty;
+  late (T?, bool settedByFormatter) _number;
+
+  T? get number => _number.$1;
+  set number(T? value) {
+    final text = _formatter.toText(value);
+    if (text.length > (_formatter.lengthLimiting ?? double.infinity)) return;
+    _number = (value, false);
+    super.value = _formatter._editingValue(text);
+  }
 
   @override
-  set text(String newText) {
-    final num = _formatter.fromText(newText);
-    if (num == null) return;
-    super.text = newText;
+  set value(TextEditingValue newValue) {
+    final text = newValue.text;
+    var finalValue = newValue;
+    if (text != value.text && !_number.$2) {
+      finalValue = _formatter.formatEditUpdate(_oldValue, newValue);
+    }
+    _number = (_number.$1, false);
+    super.value = finalValue;
+    _oldValue = super.value;
+  }
+
+  @override
+  void notifyListeners() {
+    if (_canNotify) super.notifyListeners();
   }
 }
 
-final class NumInputFormatter<T extends num?> extends TextInputFormatter {
-  const NumInputFormatter({
+final class NumInputFormatter<T extends num> extends TextInputFormatter {
+  NumInputFormatter({
     this.hundredSeparator = '',
     int decimalPoint = 0,
     this.decimalSeparator = '.',
     this.signType = NumInputFormatterSignType.none,
     this.canBeEmpty = true,
     this.canBeZero = true,
+    this.lengthLimiting,
   }) : decimalPoint = decimalPoint < 0 ? 0 : decimalPoint;
 
   final String hundredSeparator;
@@ -39,13 +63,16 @@ final class NumInputFormatter<T extends num?> extends TextInputFormatter {
   final NumInputFormatterSignType signType;
   final bool canBeEmpty;
   final bool canBeZero;
+  final int? lengthLimiting;
+
+  NumEditingController<T>? _controller;
 
   String sign(T? value) => signType._sign(value?.toString() ?? '');
 
   String toText(T? value) {
     if (value == null && canBeEmpty) return '';
     final v = value ?? (canBeZero ? 0 : (1 / pow(10, decimalPoint))) as T;
-    final valueSplit = v!.toStringAsFixed(decimalPoint).split('.');
+    final valueSplit = v.toStringAsFixed(decimalPoint).split('.');
     var valueString = valueSplit.first;
     if (valueString.startsWith('-') || valueString.startsWith('+')) {
       valueString = valueString.substring(1);
@@ -62,13 +89,24 @@ final class NumInputFormatter<T extends num?> extends TextInputFormatter {
     return '${sign(v)}$valueString$decimalSeparator${valueSplit.last}';
   }
 
-  T? fromText(String text) {
-    var v = text;
-    if (hundredSeparator.isNotEmpty) v = v.replaceAll(hundredSeparator, '');
-    v = v.replaceAll(decimalSeparator, '.');
-    if (T == int) return int.tryParse(v) as T?;
-    if (T == double) return double.tryParse(v) as T?;
-    return num.tryParse(v) as T?;
+  T? fromText(String text) => _fromText(text).$1;
+
+  (T?, bool useOldValue) _fromText(String t) {
+    final text = t.trim();
+    if (text.length > (lengthLimiting ?? double.infinity)) return (null, true);
+    if (text.isEmpty && canBeEmpty) return (null, false);
+    if (text == '-' || text == '+') return (null, false);
+    if (text == decimalSeparator) return (null, false);
+    if (text == hundredSeparator) return (null, false);
+    final regex = RegExp('[^0-9$decimalSeparator$hundredSeparator+-]');
+    if (text.contains(regex)) return (null, true);
+    final v = '${signType._sign(text)}${_formattedToNumString(text)}';
+    final value = (T == int ? int.tryParse(v) : double.tryParse(v)) as T?;
+    if (value != 0) return (value, false);
+    if (!canBeZero && !canBeEmpty) return (null, true);
+    if (!canBeEmpty) return (value, false);
+    if (!canBeZero) return (null, false);
+    return (value, false);
   }
 
   @override
@@ -76,29 +114,19 @@ final class NumInputFormatter<T extends num?> extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    final text = newValue.text.trim();
-    if (text.isEmpty && canBeEmpty) return _editingValue('');
-    if (text == '-' || text == '+') return _editingValue('');
-    if (text == decimalSeparator) return _editingValue('');
-    if (text == hundredSeparator) return _editingValue('');
-    if (text.contains(RegExp('[^0-9$decimalSeparator$hundredSeparator+-]'))) {
-      return _editingValue(oldValue.text);
-    }
-    final sign = signType._sign(text);
-    final value = num.parse('$sign${_valueText(text)}') as T;
-    if (value == 0) {
-      if (!canBeZero && !canBeEmpty) return _editingValue(oldValue.text);
-      if (canBeEmpty) {
-        if (!canBeZero) return _editingValue('');
-        bool isDeleting() => oldValue.text.startsWith(RegExp('$text.'));
-        bool lastIsZero() => num.parse(_valueText(oldValue.text)) == 0;
-        if (isDeleting() && lastIsZero()) return _editingValue('');
-      }
-    }
-    return _editingValue(toText(value));
+    final (value, useOldValue) = _fromText(newValue.text);
+    if (useOldValue) return _editingValue(oldValue.text);
+    final lastNumber = _controller != null
+        ? _controller!._number.$1
+        : (num.parse(_formattedToNumString(oldValue.text)) as T);
+    var text = toText(value);
+    bool isDeleting() => oldValue.text.startsWith(RegExp(newValue.text));
+    if (canBeEmpty && lastNumber == 0 && isDeleting()) text = '';
+    _controller?._number = (text.isEmpty ? null : value, true);
+    return _editingValue(text);
   }
 
-  String _valueText(String text) {
+  String _formattedToNumString(String text) {
     var t = text;
     t = t.replaceAll(RegExp('[^0-9]'), '').padLeft(decimalPoint + 1, '0');
     if (decimalPoint > 0) {
