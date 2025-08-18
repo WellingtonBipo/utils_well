@@ -6,6 +6,10 @@ import 'package:flutter/services.dart';
 class NumEditingController<T extends num> extends TextEditingController {
   NumEditingController({T? number, NumInputFormatter<T>? formatter}) {
     _formatter = formatter ?? NumInputFormatter<T>();
+    assert(
+      _formatter._controller == null,
+      'Each NumEditingController must have its own instance of NumInputFormatter',
+    );
     _formatter._controller = this;
     _number = (number, false);
     super.value = _formatter._editingValue(_formatter.toText(number));
@@ -23,7 +27,7 @@ class NumEditingController<T extends num> extends TextEditingController {
   T? get number => _number.$1;
   set number(T? value) {
     final text = _formatter.toText(value);
-    if (text.length > (_formatter.lengthLimiting ?? double.infinity)) return;
+    if (_formatter.textHigherThanLength(text)) return;
     _number = (value, false);
     super.value = _formatter._editingValue(text);
   }
@@ -65,12 +69,34 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
   final bool canBeZero;
   final int? lengthLimiting;
 
+  NumInputFormatter<T> copyWith({
+    String? hundredSeparator,
+    int? decimalPoint,
+    String? decimalSeparator,
+    NumInputFormatterSignType? signType,
+    bool? canBeEmpty,
+    bool? canBeZero,
+    int? lengthLimiting,
+  }) =>
+      NumInputFormatter<T>(
+        hundredSeparator: hundredSeparator ?? this.hundredSeparator,
+        decimalPoint: decimalPoint ?? this.decimalPoint,
+        decimalSeparator: decimalSeparator ?? this.decimalSeparator,
+        signType: signType ?? this.signType,
+        canBeEmpty: canBeEmpty ?? this.canBeEmpty,
+        canBeZero: canBeZero ?? this.canBeZero,
+        lengthLimiting: lengthLimiting ?? this.lengthLimiting,
+      );
+
   NumEditingController<T>? _controller;
 
-  String sign(T? value) => signType._sign(value?.toString() ?? '');
+  String sign(T? value) => value == null || value == 0 || value == 0.0
+      ? ''
+      : signType._sign(value.toString());
 
   String toText(T? value) {
     if (value == null && canBeEmpty) return '';
+    if (value == 0 && canBeEmpty && !canBeZero) return '';
     final v = value ?? (canBeZero ? 0 : (1 / pow(10, decimalPoint))) as T;
     final valueSplit = v.toStringAsFixed(decimalPoint).split('.');
     var valueString = valueSplit.first;
@@ -93,14 +119,15 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
 
   (T?, bool useOldValue) _fromText(String t) {
     final text = t.trim();
-    if (text.length > (lengthLimiting ?? double.infinity)) return (null, true);
     if (text.isEmpty && canBeEmpty) return (null, false);
     if (text == '-' || text == '+') return (null, false);
     if (text == decimalSeparator) return (null, false);
     if (text == hundredSeparator) return (null, false);
     final regex = RegExp('[^0-9$decimalSeparator$hundredSeparator+-]');
     if (text.contains(regex)) return (null, true);
-    final v = '${signType._sign(text)}${_formattedToNumString(text)}';
+    final valueString = _formattedToNumString(text);
+    if (textHigherThanLength(valueString)) return (null, true);
+    final v = '${signType._sign(text)}$valueString';
     final value = (T == int ? int.tryParse(v) : double.tryParse(v)) as T?;
     if (value != 0) return (value, false);
     if (!canBeZero && !canBeEmpty) return (null, true);
@@ -109,11 +136,17 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
     return (value, false);
   }
 
+  bool textHigherThanLength(String text) {
+    if (lengthLimiting == null) return false;
+    return text.replaceAll(RegExp('[^0-9]'), '').length > lengthLimiting!;
+  }
+
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
+    if (oldValue.text == newValue.text) return newValue;
     final (value, useOldValue) = _fromText(newValue.text);
     if (useOldValue) return _editingValue(oldValue.text);
     final lastNumber = _controller != null
@@ -163,17 +196,14 @@ enum NumInputFormatterSignType {
         final startsNeg = text.startsWith('-');
         if (startsNeg) t = text.replaceFirst('-', '');
         final containsNeg = t.contains('-');
-        if (this == NumInputFormatterSignType.showNegative) {
-          if (startsNeg || containsNeg) return '-';
-          return '';
-        }
         final startsPos = text.startsWith('+');
         if (startsPos) t = text.replaceFirst('+', '');
         final containsPos = t.contains('+');
-        if (startsPos) return containsNeg ? '+' : '-';
-        if (startsNeg) return containsPos ? '+' : '-';
+        var posSign = this == NumInputFormatterSignType.showNegative ? '' : '+';
+        if (startsPos) return containsNeg ? posSign : '-';
+        if (startsNeg) return containsPos ? posSign : '-';
         if (containsNeg) return '-';
-        if (containsPos) return '+';
+        if (containsPos) return posSign;
         return '';
     }
   }

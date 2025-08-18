@@ -18,3 +18,5 @@ export 'src/extensions/text_style_extension.dart';
 export 'src/tools/add_post_frame_callback.dart';
 export 'src/tools/editing_controllers/num_editing_controller.dart';
 export 'src/tools/on_tap_vibration.dart';
+export 'src/widgets/sliver_container.dart';
+export 'src/widgets/sliver_pinned_expandable.dart';
