@@ -8,12 +8,14 @@ class SliverPinnedExpandable extends StatefulWidget {
   const SliverPinnedExpandable({
     required this.headerBuilder,
     required this.contentBuilder,
+    this.startExpanded = false,
     this.margin = EdgeInsets.zero,
     this.duration = const Duration(milliseconds: 300),
     this.decoration = const ContainerDecoration(),
     super.key,
   });
 
+  final bool startExpanded;
   final EdgeInsets margin;
   final Duration duration;
   final ContainerDecoration decoration;
@@ -26,7 +28,7 @@ class SliverPinnedExpandable extends StatefulWidget {
   final Widget Function(
     BuildContext context,
     AnimationController expandedController,
-  ) contentBuilder;
+  )? contentBuilder;
 
   @override
   State<SliverPinnedExpandable> createState() => _SliverPinnedExpandableState();
@@ -37,6 +39,7 @@ class _SliverPinnedExpandableState extends State<SliverPinnedExpandable>
   late final _expandedController = AnimationController(
     vsync: this,
     duration: widget.duration,
+    value: widget.startExpanded ? 1.0 : 0.0,
   );
 
   @override
@@ -47,17 +50,16 @@ class _SliverPinnedExpandableState extends State<SliverPinnedExpandable>
 
   @override
   Widget build(BuildContext context) {
-    BoxBorder? border(ContainerDecoration decoration, bool header) {
-      if (decoration.borderColor == null) return null;
+    BoxBorder? border([bool? header]) {
+      if (widget.decoration.borderColor == null) return null;
       final sd = BorderSide(
-        color: decoration.borderColor!,
-        width: decoration.borderStroke,
+        color: widget.decoration.borderColor!,
+        width: widget.decoration.borderStroke,
       );
       return Border(
-        top: header ? sd : BorderSide.none,
         left: sd,
         right: sd,
-        bottom: header ? BorderSide.none : sd,
+        top: header == true ? sd : BorderSide.none,
       );
     }
 
@@ -66,6 +68,9 @@ class _SliverPinnedExpandableState extends State<SliverPinnedExpandable>
       sliver: s.SliverStack(
         insetOnOverlap: true,
         children: [
+          s.SliverPositioned.fill(
+            child: Container(decoration: BoxDecoration(border: border())),
+          ),
           s.MultiSliver(
             children: [
               PinnedHeaderSliver(
@@ -76,7 +81,7 @@ class _SliverPinnedExpandableState extends State<SliverPinnedExpandable>
                   child: Container(
                     decoration: BoxDecoration(
                       color: widget.decoration.backgroundColor,
-                      border: border(widget.decoration, true),
+                      border: border(true),
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(widget.decoration.borderRadius),
                       ),
@@ -85,18 +90,20 @@ class _SliverPinnedExpandableState extends State<SliverPinnedExpandable>
                   ),
                 ),
               ),
-              SliverToBoxAdapter(
-                child: SizeTransition(
-                  sizeFactor: _expandedController,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: widget.decoration.backgroundColor,
-                      border: border(widget.decoration, false),
+              if (widget.contentBuilder != null)
+                SliverToBoxAdapter(
+                  child: SizeTransition(
+                    sizeFactor: _expandedController,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: widget.decoration.backgroundColor,
+                        border: border(false),
+                      ),
+                      child:
+                          widget.contentBuilder!(context, _expandedController),
                     ),
-                    child: widget.contentBuilder(context, _expandedController),
                   ),
                 ),
-              ),
             ],
           ),
           if (widget.decoration.borderRadius > 0)
@@ -192,9 +199,9 @@ class _CustomPainter extends CustomPainter {
       ..strokeWidth = decoration.borderStroke;
 
     final path = Path()
-      ..addArc(leftBoarder.translate(0.5, -.05), m.pi, -m.pi / 2)
+      ..addArc(leftBoarder.translate(0.5, -0.5), m.pi, -m.pi / 2)
       ..lineTo(rect.width - decoration.borderRadius, rect.height - 0.5)
-      ..addArc(rightBoarder.translate(-0.5, -.05), m.pi / 2, -m.pi / 2);
+      ..addArc(rightBoarder.translate(-0.5, -0.5), m.pi / 2, -m.pi / 2);
 
     canvas.drawPath(path, paint);
   }
