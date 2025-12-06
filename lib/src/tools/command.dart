@@ -36,7 +36,7 @@ class Command<S, F, V> extends ChangeNotifier {
     }
     _result = _result.copyToLoading();
     notifyListeners();
-    final result = await _action(value ?? _getValue!);
+    final result = await _action(value ?? _getValue!());
     notifyListeners();
     _result = (result as Result<S, F>).fold(
       (success) => _result.copyToSuccess(data: success),
