@@ -20,6 +20,8 @@ class Command<S, F, V> extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> call(V value) => execute(value);
+
   Future<void> execute(V value) async {
     _result = _result.copyToLoading();
     notifyListeners();
