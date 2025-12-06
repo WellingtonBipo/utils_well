@@ -5,12 +5,16 @@ import 'package:flutter/widgets.dart';
 import 'package:utils_well/src/tools/result.dart';
 
 class Command<S, F, V> extends ChangeNotifier {
-  Command({
-    required this.action,
+  Command(
+    FutureOr<Result<S, F>> Function(V value) action, {
+    FutureOr<V> Function()? getValue,
     CommandResult<S, F> initialResult = const CommandResultInitial(),
-  }) : _result = initialResult;
+  })  : _getValue = getValue,
+        _action = action,
+        _result = initialResult;
 
-  final FutureOr<Result<S, F>> Function(V) action;
+  final Function _action;
+  final FutureOr<V> Function()? _getValue;
   CommandResult<S, F> _result;
 
   CommandResult<S, F> get result => _result;
@@ -20,14 +24,21 @@ class Command<S, F, V> extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> call(V value) => execute(value);
-
-  Future<void> execute(V value) async {
+  Future<void> call([V? value]) async {
+    if (value == null &&
+        _getValue == null &&
+        V.toString() != 'void' &&
+        V.toString() != 'dynamic' &&
+        V.toString().toLowerCase() != 'null') {
+      throw ArgumentError(
+        'Either provide a value when calling the command or provide a getValue function when creating the command.',
+      );
+    }
     _result = _result.copyToLoading();
     notifyListeners();
-    final result = await action(value);
+    final result = await _action(value ?? _getValue!);
     notifyListeners();
-    _result = result.fold(
+    _result = (result as Result<S, F>).fold(
       (success) => _result.copyToSuccess(data: success),
       (failure) => _result.copyToFailure(failure: failure),
     );
