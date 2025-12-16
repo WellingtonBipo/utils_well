@@ -4,44 +4,56 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:utils_well/src/tools/result.dart';
 
-class Command<S, F, V> extends ChangeNotifier {
+class Command<S extends Object, F extends Object, V> extends ChangeNotifier {
   Command(
     FutureOr<Result<S, F>> Function(V value) action, {
     FutureOr<V> Function()? getValue,
-    CommandResult<S, F> initialResult = const CommandResultInitial(),
+    CommandResult<S, F>? initialResult,
   })  : _getValue = getValue,
-        _action = action,
-        _result = initialResult;
+        _action = action {
+    _result = initialResult ?? CommandResultInitial<S, F>();
+  }
 
   final Function _action;
   final FutureOr<V> Function()? _getValue;
-  CommandResult<S, F> _result;
 
+  var _disposed = false;
+
+  CommandResult<S, F>? _lastResult;
+  late CommandResult<S, F> _result;
+
+  CommandResult<S, F>? get lastResult => _lastResult;
   CommandResult<S, F> get result => _result;
 
   set result(CommandResult<S, F> r) {
+    _lastResult = _result;
     _result = r;
     notifyListeners();
   }
 
   Future<void> call([V? value]) async {
+    final vString = V.toString();
     if (value == null &&
         _getValue == null &&
-        V.toString() != 'void' &&
-        V.toString() != 'dynamic' &&
-        V.toString().toLowerCase() != 'null') {
+        !vString.endsWith('?') &&
+        vString != 'void' &&
+        vString != 'dynamic' &&
+        vString.toLowerCase() != 'null') {
       throw ArgumentError(
         'Either provide a value when calling the command or provide a getValue function when creating the command.',
       );
     }
+    _lastResult = _result;
     _result = _result.copyToLoading();
     notifyListeners();
-    final result = await _action(value ?? _getValue!());
-    notifyListeners();
-    _result = (result as Result<S, F>).fold(
+    final actionResult = await _action(value ?? _getValue?.call());
+    if (_disposed) return;
+    _lastResult = _result;
+    _result = (actionResult as Result<S, F>).fold(
       (success) => _result.copyToSuccess(data: success),
       (failure) => _result.copyToFailure(failure: failure),
     );
+    notifyListeners();
   }
 
   void setInitial({(S?,)? data, (F?,)? failure}) =>
@@ -55,6 +67,12 @@ class Command<S, F, V> extends ChangeNotifier {
 
   void setFailure({required F failure, (S?,)? data}) =>
       result = _result.copyToFailure(failure: failure, data: data);
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
 }
 
 abstract interface class CommandResult<D, E> extends _Result<D, E>

@@ -52,40 +52,44 @@ class NumEditingController<T extends num> extends TextEditingController {
 
 final class NumInputFormatter<T extends num> extends TextInputFormatter {
   NumInputFormatter({
-    this.hundredSeparator = '',
+    this.thousandSeparator = '',
     int decimalPoint = 0,
     this.decimalSeparator = '.',
     this.signType = NumInputFormatterSignType.none,
     this.canBeEmpty = true,
     this.canBeZero = true,
     this.lengthLimiting,
+    this.leadingText,
   }) : decimalPoint = decimalPoint < 0 ? 0 : decimalPoint;
 
-  final String hundredSeparator;
+  final String thousandSeparator;
   final int decimalPoint;
   final String decimalSeparator;
   final NumInputFormatterSignType signType;
   final bool canBeEmpty;
   final bool canBeZero;
   final int? lengthLimiting;
+  final String? leadingText;
 
   NumInputFormatter<T> copyWith({
-    String? hundredSeparator,
+    String? thousandSeparator,
     int? decimalPoint,
     String? decimalSeparator,
     NumInputFormatterSignType? signType,
     bool? canBeEmpty,
     bool? canBeZero,
     int? lengthLimiting,
+    String? leadingText,
   }) =>
       NumInputFormatter<T>(
-        hundredSeparator: hundredSeparator ?? this.hundredSeparator,
+        thousandSeparator: thousandSeparator ?? this.thousandSeparator,
         decimalPoint: decimalPoint ?? this.decimalPoint,
         decimalSeparator: decimalSeparator ?? this.decimalSeparator,
         signType: signType ?? this.signType,
         canBeEmpty: canBeEmpty ?? this.canBeEmpty,
         canBeZero: canBeZero ?? this.canBeZero,
         lengthLimiting: lengthLimiting ?? this.lengthLimiting,
+        leadingText: leadingText ?? this.leadingText,
       );
 
   NumEditingController<T>? _controller;
@@ -104,26 +108,30 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
       valueString = valueString.substring(1);
     }
     final values = <String>[];
-    if (hundredSeparator.isNotEmpty) {
+    if (thousandSeparator.isNotEmpty) {
       for (var i = valueString.length; i > 0; i -= 3) {
         final startIdx = i - 3 < 0 ? 0 : i - 3;
         values.add(valueString.substring(startIdx, i));
       }
-      valueString = values.reversed.join(hundredSeparator);
+      valueString = values.reversed.join(thousandSeparator);
     }
     if (valueSplit.length == 1) return '${sign(v)}$valueString';
-    return '${sign(v)}$valueString$decimalSeparator${valueSplit.last}';
+    return '$leadingText${sign(v)}$valueString$decimalSeparator${valueSplit.last}';
   }
 
   T? fromText(String text) => _fromText(text).$1;
 
   (T?, bool useOldValue) _fromText(String t) {
-    final text = t.trim();
+    var text = t.trim();
     if (text.isEmpty && canBeEmpty) return (null, false);
     if (text == '-' || text == '+') return (null, false);
     if (text == decimalSeparator) return (null, false);
-    if (text == hundredSeparator) return (null, false);
-    final regex = RegExp('[^0-9$decimalSeparator$hundredSeparator+-]');
+    if (text == thousandSeparator) return (null, false);
+    if (text == leadingText) return (null, false);
+    if (leadingText != null && text.startsWith(leadingText!)) {
+      text = text.substring(leadingText!.length);
+    }
+    final regex = RegExp('[^0-9$decimalSeparator$thousandSeparator+-]');
     if (text.contains(regex)) return (null, true);
     final valueString = _formattedToNumString(text);
     if (textHigherThanLength(valueString)) return (null, true);
