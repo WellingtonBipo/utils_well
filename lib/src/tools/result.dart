@@ -1,4 +1,4 @@
-abstract class Result<S extends Object, E extends Object> {
+abstract class Result<S, E> {
   const Result._(this.value);
 
   final dynamic value;
@@ -28,17 +28,16 @@ abstract class Result<S extends Object, E extends Object> {
   }) =>
       fold(onSuccess ?? (s) => null, (f) => f);
 
-  S successOrThrowError() => fold((s) => s, (e) => throw e);
+  S successOrThrowError() => fold((s) => s, (e) => throw e as Object);
 
-  E errorOrThrowSuccess() => fold((s) => throw s, (e) => e);
+  E errorOrThrowSuccess() => fold((s) => throw s as Object, (e) => e);
 
-  Result<SS, E> mapSuccess<SS extends Object>(SS Function(S value) func) =>
-      fold(
+  Result<SS, E> mapSuccess<SS>(SS Function(S value) func) => fold(
         (s) => Success<SS, E>(func(s)),
         Error<SS, E>.new,
       );
 
-  Result<S, EE> mapError<EE extends Object>(EE Function(E value) func) => fold(
+  Result<S, EE> mapError<EE>(EE Function(E value) func) => fold(
         Success<S, EE>.new,
         (e) => Error<S, EE>(func(e)),
       );
@@ -53,10 +52,10 @@ abstract class Result<S extends Object, E extends Object> {
   int get hashCode => value.hashCode;
 }
 
-class Success<S extends Object, E extends Object> extends Result<S, E> {
+class Success<S, E> extends Result<S, E> {
   const Success(S super.value) : super._();
 }
 
-class Error<S extends Object, E extends Object> extends Result<S, E> {
+class Error<S, E> extends Result<S, E> {
   const Error(E super.value) : super._();
 }
