@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:utils_well/src/tools/result.dart';
 
-class Command<S extends Object, F extends Object, V> extends ChangeNotifier {
+class Command<S, F, V> extends ChangeNotifier {
   Command(
     FutureOr<Result<S, F>> Function(V value) action, {
     FutureOr<V> Function()? getValue,
