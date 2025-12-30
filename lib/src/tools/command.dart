@@ -6,7 +6,7 @@ import 'package:utils_well/src/tools/result.dart';
 
 class Command<S, F, V> extends ChangeNotifier {
   Command(
-    FutureOr<Result<S, F>> Function(V value) action, {
+    FutureOr<Result<S, F>> Function(V value)? action, {
     FutureOr<V> Function()? getValue,
     CommandResult<S, F>? initialResult,
   })  : _getValue = getValue,
@@ -14,7 +14,7 @@ class Command<S, F, V> extends ChangeNotifier {
     _result = initialResult ?? CommandResultInitial<S, F>();
   }
 
-  final Function _action;
+  final Function? _action;
   final FutureOr<V> Function()? _getValue;
 
   var _disposed = false;
@@ -32,6 +32,10 @@ class Command<S, F, V> extends ChangeNotifier {
   }
 
   Future<void> call([V? value]) async {
+    if (_action == null) {
+      throw const Error('No action was provided for this command. Either'
+          ' provide an action when creating the command or override call method');
+    }
     final vString = V.toString();
     if (value == null &&
         _getValue == null &&
@@ -40,7 +44,8 @@ class Command<S, F, V> extends ChangeNotifier {
         vString != 'dynamic' &&
         vString.toLowerCase() != 'null') {
       throw ArgumentError(
-        'Either provide a value when calling the command or provide a getValue function when creating the command.',
+        'Either provide a value when calling the command or provide a'
+        ' getValue function when creating the command.',
       );
     }
     _lastResult = _result;
