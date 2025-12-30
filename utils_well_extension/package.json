@@ -1,0 +1,90 @@
+{
+  "name": "utils-well-extension",
+  "displayName": "Utils Well",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.102.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "type": "commonjs",
+  "scripts": {
+    "install": "cd react_vite_ui && npm install",
+    "build:react_vite_ui": "cd react_vite_ui && npm run build && cd ..",
+    "vscode:prepublish": "npm run compile",
+    "compile": "npm run build:react_vite_ui && tsc -p ./",
+    "watch": "npm run build:react_vite_ui && tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@types/vscode": "^1.102.0",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "eslint": "^9.25.1",
+    "typescript": "^5.8.3"
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ailosDevTools",
+          "title": "Ailos Dev Tools",
+          "icon": "media/logo-ailos.svg"
+        }
+      ]
+    },
+    "views": {
+      "ailosDevTools": [
+        {
+          "id": "ailosDevTools-commands",
+          "name": "Comandos",
+          "icon": "media/logo-ailos.svg"
+        },
+        {
+          "id": "ailosDevTools-searchOnRepos",
+          "name": "Buscar nos repositórios",
+          "icon": "media/logo-ailos.svg",
+          "type": "webview"
+        }
+      ]
+    },
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "ailosDevTools.runCommand",
+          "when": "viewItem == runTerminalCommand",
+          "group": "inline"
+        },
+        {
+          "command": "ailosDevTools.featureCreator",
+          "when": "viewItem == featureCreator",
+          "group": "inline"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "category": "Ailos Dev Tools",
+        "command": "ailosDevTools.runCommand",
+        "title": "Executar no Terminal",
+        "icon": "$(terminal)"
+      },
+      {
+        "category": "Ailos Dev Tools",
+        "command": "ailosDevTools.featureCreator",
+        "title": "Criador de Features",
+        "icon": "media/logo-ailos.svg"
+      }
+    ]
+  }
+}
