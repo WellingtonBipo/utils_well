@@ -38,7 +38,30 @@
     "configuration": {
       "title": "Utils Well",
       "properties": {
-        "devUtilsWell.commands": {
+        "devUtilsWell.commands.config": {
+          "description": "Config for a specific commands.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "label"
+            ],
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "The display name of the command."
+              },
+              "folders": {
+                "type": "array",
+                "description": "Folder where the command should run",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "devUtilsWell.commands.list": {
           "description": "List of custom commands to show in the Utils Well view.",
           "type": "array",
           "items": {

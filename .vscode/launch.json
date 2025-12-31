@@ -1,4 +1,3 @@
-// A launch configuration that compiles the extension and then opens it inside a new window
 {
 	"version": "0.2.0",
 	"configurations": [
@@ -18,6 +17,13 @@
 			"type": "node-terminal",
 			"cwd": "${workspaceFolder}/utils_well_extension",
 			"command": "vsce package --allow-missing-repository --skip-license",
+		},
+		{
+			"name": "Package and install Extension",
+			"request": "launch",
+			"type": "node-terminal",
+			"cwd": "${workspaceFolder}/utils_well_extension",
+			"command": "vsce package --allow-missing-repository --skip-license && code --install-extension utils-well-extension-$(node -p \"require('./package.json').version\").vsix",
 		},
 	]
 }
