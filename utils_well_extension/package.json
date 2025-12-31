@@ -14,7 +14,8 @@
   "type": "commonjs",
   "scripts": {
     "install": "cd react_vite_ui && npm install",
-    "build:react_vite_ui": "cd react_vite_ui && npm run build && cd ..",
+    "build:react_vite_ui": "cd react_vite_ui && npm run build && cd .. && npm run build:tsc",
+    "build:tsc": "npx tsc",
     "vscode:prepublish": "npm run compile",
     "compile": "npm run build:react_vite_ui && tsc -p ./",
     "watch": "npm run build:react_vite_ui && tsc -watch -p ./",
@@ -34,56 +35,117 @@
     "typescript": "^5.8.3"
   },
   "contributes": {
+    "configuration": {
+      "title": "Utils Well",
+      "properties": {
+        "devUtilsWell.commands": {
+          "description": "List of custom commands to show in the Utils Well view.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "command"
+            ],
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "The display name of the command."
+              },
+              "command": {
+                "type": "string",
+                "description": "The terminal command to execute."
+              },
+              "ownTerminal": {
+                "type": "boolean",
+                "default": false,
+                "description": "If the command should run in a own terminal instance."
+              }
+            }
+          }
+        }
+      }
+    },
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "ailosDevTools",
-          "title": "Ailos Dev Tools",
-          "icon": "media/logo-ailos.svg"
+          "id": "devUtilsWell",
+          "title": "Utils Well",
+          "icon": "media/logo_light.svg"
         }
       ]
     },
     "views": {
-      "ailosDevTools": [
+      "devUtilsWell": [
         {
-          "id": "ailosDevTools-commands",
-          "name": "Comandos",
-          "icon": "media/logo-ailos.svg"
-        },
-        {
-          "id": "ailosDevTools-searchOnRepos",
-          "name": "Buscar nos repositórios",
-          "icon": "media/logo-ailos.svg",
-          "type": "webview"
+          "id": "devUtilsWell-commands",
+          "name": "Commands",
+          "icon": "media/logo_light.svg"
         }
       ]
     },
     "menus": {
+      "view/title": [
+        {
+          "command": "devUtilsWell.openUserSettings",
+          "when": "view == devUtilsWell-commands",
+          "group": "navigation"
+        }
+      ],
       "view/item/context": [
         {
-          "command": "ailosDevTools.runCommand",
-          "when": "viewItem == runTerminalCommand",
-          "group": "inline"
+          "command": "devUtilsWell.copyCommand",
+          "when": "viewItem == devUtilsWell.runTerminalCommand",
+          "group": "navigation@1"
         },
         {
-          "command": "ailosDevTools.featureCreator",
-          "when": "viewItem == featureCreator",
-          "group": "inline"
+          "command": "devUtilsWell.runCommand",
+          "when": "viewItem == devUtilsWell.runTerminalCommand",
+          "group": "navigation@2"
+        },
+        {
+          "command": "devUtilsWell.copyCommand",
+          "when": "viewItem == devUtilsWell.runTerminalCommand",
+          "group": "inline@1"
+        },
+        {
+          "command": "devUtilsWell.runCommand",
+          "when": "viewItem == devUtilsWell.runTerminalCommand",
+          "group": "inline@2"
+        },
+        {
+          "command": "devUtilsWell.featureCreator",
+          "when": "viewItem == devUtilsWell.featureCreator",
+          "group": "inline@3"
         }
       ]
     },
     "commands": [
       {
-        "category": "Ailos Dev Tools",
-        "command": "ailosDevTools.runCommand",
-        "title": "Executar no Terminal",
+        "category": "Utils Well",
+        "command": "devUtilsWell.openUserSettings",
+        "title": "Open User Settings",
+        "icon": "$(gear)"
+      },
+      {
+        "category": "Utils Well",
+        "command": "devUtilsWell.copyCommand",
+        "title": "Copy",
+        "icon": "$(clippy)"
+      },
+      {
+        "category": "Utils Well",
+        "command": "devUtilsWell.runCommand",
+        "title": "Run in Terminal",
         "icon": "$(terminal)"
       },
       {
-        "category": "Ailos Dev Tools",
-        "command": "ailosDevTools.featureCreator",
-        "title": "Criador de Features",
-        "icon": "media/logo-ailos.svg"
+        "category": "Utils Well",
+        "command": "devUtilsWell.featureCreator",
+        "title": "Feature Creator",
+        "icon": {
+          "light": "media/logo_light.svg",
+          "dark": "media/logo_dark.svg"
+        }
       }
     ]
   }

@@ -1,0 +1,23 @@
+// A launch configuration that compiles the extension and then opens it inside a new window
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Debug Extension",
+			"request": "launch",
+			"type": "extensionHost",
+			"cwd": "${workspaceFolder}/utils_well_extension",
+			"outFiles": [
+				"${workspaceFolder}/utils_well_extension/out/**/*.js"
+			],
+			"preLaunchTask": "${defaultBuildTask}",
+		},
+		{
+			"name": "Package Extension",
+			"request": "launch",
+			"type": "node-terminal",
+			"cwd": "${workspaceFolder}/utils_well_extension",
+			"command": "vsce package --allow-missing-repository --skip-license",
+		},
+	]
+}
