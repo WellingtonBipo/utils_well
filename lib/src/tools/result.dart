@@ -1,3 +1,5 @@
+import 'dart:async';
+
 abstract class Result<S, E> {
   const Result._(this.value);
 
@@ -47,6 +49,19 @@ abstract class Result<S, E> {
 
   @override
   int get hashCode => value.hashCode;
+
+  static Result<SS, EE> trySuccess<SS, EE>({
+    required SS Function() success,
+    Result<SS, EE>? Function(Object e, StackTrace stk)? onError,
+  }) {
+    try {
+      return Success(success());
+    } catch (e, stk) {
+      final newError = onError?.call(e, stk);
+      if (newError == null) rethrow;
+      return newError;
+    }
+  }
 }
 
 class Success<S, E> extends Result<S, E> {
@@ -93,4 +108,20 @@ extension FutureResultExtension<S, E> on Future<Result<S, E>> {
 
   Future<Result<S, EE>> mapError<EE>(EE Function(E value) func) =>
       then((result) => result.mapError(func));
+}
+
+extension FutureToResultExtension<T> on Future<T> {
+  Future<Success<T, E>> toSuccess<E>() async => Success(await this);
+
+  Future<Result<T, E>> trySuccess<E>({
+    E? Function(Object e, StackTrace stk)? onError,
+  }) async {
+    try {
+      return Success(await this);
+    } catch (e, stk) {
+      final newError = onError?.call(e, stk);
+      if (newError == null) rethrow;
+      return Error(newError);
+    }
+  }
 }

@@ -9,8 +9,8 @@ class Command<S, F, V> extends ChangeNotifier {
     FutureOr<Result<S, F>> Function(V value)? action, {
     FutureOr<V> Function()? getValue,
     CommandResult<S, F>? initialResult,
-  })  : _getValue = getValue,
-        _action = action {
+  }) : _getValue = getValue,
+       _action = action {
     _result = initialResult ?? CommandResultInitial<S, F>();
   }
 
@@ -33,8 +33,10 @@ class Command<S, F, V> extends ChangeNotifier {
 
   Future<void> call([V? value]) async {
     if (_action == null) {
-      throw const Error('No action was provided for this command. Either'
-          ' provide an action when creating the command or override call method');
+      throw const Error(
+        'No action was provided for this command. Either'
+        ' provide an action when creating the command or override call method',
+      );
     }
     final vString = V.toString();
     if (value == null &&
@@ -105,7 +107,7 @@ class CommandResultLoading<D, E> extends CommandResult<D, E> {
 
 class CommandResultSuccess<D, E> extends CommandResult<D, E> {
   const CommandResultSuccess({required D super.data, super.failure})
-      : super._();
+    : super._();
 
   @override
   D get data => super.data as D;
@@ -115,7 +117,7 @@ class CommandResultSuccess<D, E> extends CommandResult<D, E> {
 
 class CommandResultFailure<D, E> extends CommandResult<D, E> {
   const CommandResultFailure({required E super.failure, super.data})
-      : super._();
+    : super._();
 
   @override
   E get failure => super.failure as E;
@@ -136,11 +138,12 @@ mixin _CommandResultFold<D, E> on _Result<D, E> {
     required T Function(CommandResultFailure<D, E> result) onFailure,
   }) =>
       foldAnyOrNull(
-        onInitial: onInitial,
-        onLoading: onLoading,
-        onSuccess: onSuccess,
-        onFailure: onFailure,
-      ) as T;
+            onInitial: onInitial,
+            onLoading: onLoading,
+            onSuccess: onSuccess,
+            onFailure: onFailure,
+          )
+          as T;
 
   T foldAny<T>({
     required T Function(CommandResult<D, E> result) onAny,
@@ -150,12 +153,13 @@ mixin _CommandResultFold<D, E> on _Result<D, E> {
     T Function(CommandResultFailure<D, E> result)? onFailure,
   }) =>
       foldAnyOrNull(
-        onAny: onAny,
-        onInitial: onInitial,
-        onLoading: onLoading,
-        onSuccess: onSuccess,
-        onFailure: onFailure,
-      ) as T;
+            onAny: onAny,
+            onInitial: onInitial,
+            onLoading: onLoading,
+            onSuccess: onSuccess,
+            onFailure: onFailure,
+          )
+          as T;
 
   T? foldAnyOrNull<T>({
     T Function(CommandResult<D, E> result)? onAny,
@@ -183,21 +187,20 @@ mixin _CommandResultFold<D, E> on _Result<D, E> {
   CommandResult<D, E> copyWith({
     (D?,)? data,
     (E?,)? failure,
-  }) =>
-      fold(
-        onInitial: (s) => s.copyToInitial(data: data, failure: failure),
-        onLoading: (s) => s.copyToLoading(data: data, failure: failure),
-        onSuccess: (s) => s.copyToSuccess(
-          failure: failure,
-          data: data == null ? s.data : (data.$1 is D ? data.$1 as D : s.data),
-        ),
-        onFailure: (s) => s.copyToFailure(
-          data: data,
-          failure: failure == null
-              ? s.failure
-              : (failure.$1 is E ? failure.$1 as E : s.failure),
-        ),
-      );
+  }) => fold(
+    onInitial: (s) => s.copyToInitial(data: data, failure: failure),
+    onLoading: (s) => s.copyToLoading(data: data, failure: failure),
+    onSuccess: (s) => s.copyToSuccess(
+      failure: failure,
+      data: data == null ? s.data : (data.$1 is D ? data.$1 as D : s.data),
+    ),
+    onFailure: (s) => s.copyToFailure(
+      data: data,
+      failure: failure == null
+          ? s.failure
+          : (failure.$1 is E ? failure.$1 as E : s.failure),
+    ),
+  );
 
   CommandResultInitial<D, E> copyToInitial({(D?,)? data, (E?,)? failure}) =>
       CommandResultInitial<D, E>(
