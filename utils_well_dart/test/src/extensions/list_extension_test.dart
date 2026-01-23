@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:utils_well/src/extensions/list_extension.dart';
+import 'package:test/test.dart';
+import 'package:utils_well_dart/src/extensions/list_extension.dart';
 
 void main() {
   group('endsWithRepeatedSequence', () {
@@ -49,17 +49,17 @@ void main() {
     test('must return false', () {
       expect(
         () => [].endsWithRepeatedSequence(sequences: 1),
-        throwsAssertionError,
+        throwsA(isA<AssertionError>()),
       );
 
       expect(
         () => [].endsWithRepeatedSequence(minSequenceRange: 0),
-        throwsAssertionError,
+        throwsA(isA<AssertionError>()),
       );
 
       expect(
         () => [].endsWithRepeatedSequence(maxSequenceRange: 0),
-        throwsAssertionError,
+        throwsA(isA<AssertionError>()),
       );
 
       expect(
@@ -96,8 +96,8 @@ void main() {
 }
 
 List<int> _gen(int seq, int range, bool reversed) => [
-      for (var i = 0; i < seq; i++) ...[
-        if (!reversed) ...[for (var j = 0; j < range; j++) j],
-        if (reversed) ...[for (var j = range - 1; j >= 0; j--) j],
-      ]
-    ];
+  for (var i = 0; i < seq; i++) ...[
+    if (!reversed) ...[for (var j = 0; j < range; j++) j],
+    if (reversed) ...[for (var j = range - 1; j >= 0; j--) j],
+  ],
+];

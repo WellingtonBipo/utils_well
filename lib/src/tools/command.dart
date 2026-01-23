@@ -1,8 +1,7 @@
 import 'dart:async';
 
-import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
-import 'package:utils_well/src/tools/result.dart';
+import 'package:utils_well_dart/utils_well_dart.dart';
 
 class Command<S, F, V> extends ChangeNotifier {
   Command(

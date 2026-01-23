@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:utils_well/src/extensions/build_context_extension.dart';
-import 'package:utils_well/src/extensions/num_extension.dart';
+import 'package:utils_well_dart/utils_well_dart.dart';
 
 extension ScrollControllerExtension on ScrollController {
   Future<void> animateToWidget(
