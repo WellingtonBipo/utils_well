@@ -13,7 +13,7 @@ class Command<S, F, V> extends ChangeNotifier {
     _result = initialResult ?? CommandResultInitial<S, F>();
   }
 
-  final Function? _action;
+  final FutureOr<Result<S, F>> Function(V)? _action;
   final FutureOr<V> Function()? _getValue;
 
   var _disposed = false;
@@ -29,6 +29,11 @@ class Command<S, F, V> extends ChangeNotifier {
     _result = r;
     notifyListeners();
   }
+
+  bool get isInitial => _result.isInitial;
+  bool get isLoading => _result.isLoading;
+  bool get isSuccess => _result.isSuccess;
+  bool get isFailure => _result.isFailure;
 
   Future<void> call([V? value]) async {
     if (_action == null) {
@@ -52,10 +57,10 @@ class Command<S, F, V> extends ChangeNotifier {
     _lastResult = _result;
     _result = _result.copyToLoading();
     notifyListeners();
-    final actionResult = await _action(value ?? _getValue?.call());
+    final actionResult = await _action(value ?? await _getValue!());
     if (_disposed) return;
     _lastResult = _result;
-    _result = (actionResult as Result<S, F>).fold(
+    _result = actionResult.fold(
       (success) => _result.copyToSuccess(data: success),
       (failure) => _result.copyToFailure(failure: failure),
     );
