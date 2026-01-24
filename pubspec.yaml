@@ -11,10 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  utils_well_dart:
-    path: utils_well_dart
-
   sliver_tools: ^0.2.12
+  equatable: ^2.0.7
 
 dev_dependencies:
   flutter_test:
