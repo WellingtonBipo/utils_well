@@ -42,13 +42,14 @@ class Command<S, F, V> extends ChangeNotifier {
         ' provide an action when creating the command or override call method',
       );
     }
-    final vString = V.toString();
+    final vString = V.toString().toLowerCase();
     if (value == null &&
         _getValue == null &&
         !vString.endsWith('?') &&
         vString != 'void' &&
+        vString != 'never' &&
         vString != 'dynamic' &&
-        vString.toLowerCase() != 'null') {
+        vString != 'null') {
       throw ArgumentError(
         'Either provide a value when calling the command or provide a'
         ' getValue function when creating the command.',
