@@ -1,6 +1,6 @@
 library;
 
-export 'utils_well_dart/lib/utils_well_dart.dart';
+export 'package:utils_well_dart/utils_well_dart.dart';
 
 export 'src/extensions/build_context_extension.dart';
 export 'src/extensions/mesure_widget_extension.dart';
