@@ -58,7 +58,7 @@ class Command<S, F, V> extends ChangeNotifier {
     _lastResult = _result;
     _result = _result.copyToLoading();
     notifyListeners();
-    final actionResult = await _action(value ?? await _getValue!());
+    final actionResult = await _action(value ?? await _getValue?.call() as V);
     if (_disposed) return;
     _lastResult = _result;
     _result = actionResult.fold(
