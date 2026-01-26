@@ -47,7 +47,6 @@ class Command<S, F, V> extends ChangeNotifier {
         _getValue == null &&
         !vString.endsWith('?') &&
         vString != 'void' &&
-        vString != 'never' &&
         vString != 'dynamic' &&
         vString != 'null') {
       throw ArgumentError(
