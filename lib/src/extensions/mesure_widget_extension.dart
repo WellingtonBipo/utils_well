@@ -2,14 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 extension MesureWidgetExtension on Widget {
-  Size measureWidget({BoxConstraints constraints = const BoxConstraints()}) {
+  Size measureWidget({
+    BoxConstraints constraints = const BoxConstraints(),
+    MediaQueryData? mediaQueryData,
+  }) {
     final pipelineOwner = PipelineOwner();
     final rootView = pipelineOwner.rootNode = _MeasurementView(constraints);
     final buildOwner = BuildOwner(focusManager: FocusManager());
+
+    final wrappedWidget = MediaQuery(
+      data:
+          mediaQueryData ??
+          MediaQueryData.fromView(
+            WidgetsBinding.instance.platformDispatcher.views.first,
+          ),
+      child: Directionality(textDirection: TextDirection.ltr, child: this),
+    );
+
     final element = RenderObjectToWidgetAdapter<RenderBox>(
       container: rootView,
       debugShortDescription: '[root]',
-      child: this,
+      child: wrappedWidget,
     ).attachToRenderTree(buildOwner);
     try {
       rootView.scheduleInitialLayout();
