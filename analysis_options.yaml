@@ -190,3 +190,6 @@ linter:
     use_to_and_as_if_applicable: true
     valid_regexps: true
     void_checks: true
+analyzer:
+  errors:
+    prefer_constructors_over_static_methods: ignore
