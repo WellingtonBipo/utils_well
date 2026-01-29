@@ -8,13 +8,26 @@ class Command<S, F, V> extends ChangeNotifier {
     FutureOr<Result<S, F>> Function(V value)? action, {
     FutureOr<V> Function()? getValue,
     CommandResult<S, F>? initialResult,
-  }) : _getValue = getValue,
+    CommandResult<S, F> Function(
+      CommandResult<S, F>? lastResult,
+      Object e,
+      StackTrace stk,
+    )?
+    onError,
+  }) : _onError = onError,
+       _getValue = getValue,
        _action = action {
     _result = initialResult ?? CommandResultInitial<S, F>();
   }
 
   final FutureOr<Result<S, F>> Function(V)? _action;
   final FutureOr<V> Function()? _getValue;
+  final CommandResult<S, F> Function(
+    CommandResult<S, F>? lastResult,
+    Object e,
+    StackTrace stk,
+  )?
+  _onError;
 
   var _disposed = false;
 
@@ -54,16 +67,29 @@ class Command<S, F, V> extends ChangeNotifier {
         ' getValue function when creating the command.',
       );
     }
+    final lastResult = _lastResult;
+    final result = _result;
     _lastResult = _result;
     _result = _result.copyToLoading();
     notifyListeners();
-    final actionResult = await _action(value ?? await _getValue?.call() as V);
+    try {
+      final actionResult = await _action(value ?? await _getValue?.call() as V);
+      final r = _result;
+      _result = actionResult.fold(
+        (success) => _result.copyToSuccess(data: success),
+        (failure) => _result.copyToFailure(failure: failure),
+      );
+      _lastResult = r;
+    } catch (e, stk) {
+      if (_onError != null) {
+        _result = _onError(lastResult, e, stk);
+        _lastResult = lastResult;
+      } else {
+        _result = result;
+        _lastResult = lastResult;
+      }
+    }
     if (_disposed) return;
-    _lastResult = _result;
-    _result = actionResult.fold(
-      (success) => _result.copyToSuccess(data: success),
-      (failure) => _result.copyToFailure(failure: failure),
-    );
     notifyListeners();
   }
 
