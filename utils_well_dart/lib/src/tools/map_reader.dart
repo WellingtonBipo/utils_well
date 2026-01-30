@@ -334,6 +334,7 @@ extension on Type {
 DateTime? _fromMilliseconds(dynamic value) {
   var v = value;
   if (v is Int64) v = v.toInt();
+  if (v is double) v = v.toInt();
   if (v is String) {
     v = int.tryParse(v);
     v ??= DateTime.parse(v);
