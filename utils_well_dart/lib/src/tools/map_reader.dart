@@ -108,21 +108,33 @@ class MapReader {
       }
     }
 
-    if (value is int && V._isOrNull(double)) return value.toDouble() as V;
+    if (value is int && V._isOrNull<double>()) return value.toDouble() as V;
 
-    if (value is double && V._isOrNull(int)) {
+    if (value is double && V._isOrNull<int>()) {
       if (value - value.toInt() == 0) return value.toInt() as V;
     }
 
-    if (V._isOrNull(DateTime)) {
+    if (V._isOrNull<DateTime>()) {
       var dt = DateTime.tryParse(value.toString());
       dt ??= _fromMilliseconds(value);
       if (dt != null) return dt as V;
     }
 
+    if (value is Iterable) {
+      if (V == List<String>) return value.cast<String>().toList() as V;
+      if (V == Set<String>) return value.cast<String>().toSet() as V;
+    }
+
+    if (value is Iterable?) {
+      if (V._isOrNull<List<String>>()) {
+        return value?.cast<String>().toList() as V;
+      }
+      if (V._isOrNull<Set<String>>()) return value?.cast<String>().toSet() as V;
+    }
+
     if (V == MapReader) return (MapReader.map(value).._keys.add(key)) as V;
 
-    if (V._isOrNull(MapReader)) {
+    if (V._isOrNull<MapReader>()) {
       return (MapReader.mapNull(value)?.._keys.add(key)) as V;
     }
 
@@ -131,7 +143,7 @@ class MapReader {
           as V;
     }
 
-    if (V._isOrNull(List<MapReader>)) {
+    if (V._isOrNull<List<MapReader>>()) {
       return (MapReader.listNull(value)
             ?..mapToList((e, i) => e.._keys.add(key)))
           as V;
@@ -310,10 +322,13 @@ extension on List<String> {
 }
 
 extension on Type {
-  bool _isOrNull(Type t) => toString().contains(t.toString());
+  // bool _isOrNull(Type t) => toString().contains(t.toString());
 
   bool _isMaybeNull() =>
       toString().endsWith('?') || toString() == 'Null' || toString() == 'void';
+
+  bool _is<T>() => this == T;
+  bool _isOrNull<T>() => _is<T>() || _is<T?>();
 }
 
 DateTime? _fromMilliseconds(dynamic value) {
