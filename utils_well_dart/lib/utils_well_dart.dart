@@ -7,6 +7,7 @@ export 'src/extensions/double_to_currency_extension.dart';
 export 'src/extensions/future_extension.dart';
 export 'src/extensions/int_extension.dart';
 export 'src/extensions/iterable_extension.dart';
+export 'src/extensions/let_extension.dart';
 export 'src/extensions/list_extension.dart';
 export 'src/extensions/map_extension.dart';
 export 'src/extensions/num_extension.dart';
