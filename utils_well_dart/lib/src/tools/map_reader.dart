@@ -339,7 +339,7 @@ DateTime? _fromMilliseconds(dynamic value) {
   if (v is double) v = v.toInt();
   if (v is String) {
     v = int.tryParse(v);
-    v ??= DateTime.parse(v);
+    v ??= DateTime.tryParse(value);
     if (v is DateTime) return v;
   }
   if (v is! int) return null;
