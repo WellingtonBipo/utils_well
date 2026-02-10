@@ -76,6 +76,8 @@ class MapReader {
       list == null ? null : MapReader.list(list);
 
   final Map _data;
+  List<String> get keys => _data.keys.mapToList((e, i) => e.toString());
+
   final List<String> _keys = [];
 
   MapReader getMap(String key) => _getMap<Map>(key)!;
