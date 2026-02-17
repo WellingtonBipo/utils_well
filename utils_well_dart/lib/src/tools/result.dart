@@ -124,4 +124,9 @@ extension FutureToResultExtension<T> on Future<T> {
       return Error(newError);
     }
   }
+
+  Future<Result<T, ({E e, StackTrace stk})>>
+  tryResult<E extends Object>() async {
+    return trySuccess(onError: (e, stk) => (e: e as E, stk: stk));
+  }
 }
