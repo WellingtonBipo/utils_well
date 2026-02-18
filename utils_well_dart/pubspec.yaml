@@ -1,14 +1,14 @@
 name: utils_well_dart
 description: A starting point for Dart libraries or applications.
-version: 1.0.0
+version: 1.0.1
 publish_to: none
 
 environment:
-  sdk: ^3.10.0
+  sdk: ^3.11.0
 
 dependencies:
-  equatable: ^2.0.7
+  equatable: ^2.0.8
   fixnum: ^1.1.1
 
 dev_dependencies:
-  test: ^1.25.6
+  test: ^1.29.0

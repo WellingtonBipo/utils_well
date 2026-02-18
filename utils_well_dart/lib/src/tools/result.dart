@@ -1,48 +1,48 @@
 import 'dart:async';
 
-abstract class Result<S, E> {
+abstract class Result<S, F> {
   const Result._(this.value);
 
   final dynamic value;
 
-  B fold<B>(B Function(S s) onSuccess, B Function(E f) onError) {
+  B fold<B>(B Function(S s) onSuccess, B Function(F f) onFailure) {
     if (isSuccess) return onSuccess(value);
-    return onError(value);
+    return onFailure(value);
   }
 
   B foldNamed<B>({
     required B Function(S s) success,
-    required B Function(E f) error,
-  }) => fold(success, error);
+    required B Function(F f) failure,
+  }) => fold(success, failure);
 
-  E foldSuccess(E Function(S s) success) => value is S ? success(value) : value;
+  F foldSuccess(F Function(S s) success) => value is S ? success(value) : value;
 
-  S foldError(S Function(E e) error) => value is S ? value : error(value);
+  S foldFailure(S Function(F e) failure) => value is S ? value : failure(value);
 
   S? getSuccess<B>({
-    S? Function(E f)? onError,
-  }) => fold((s) => s, onError ?? (f) => null);
+    S? Function(F f)? onFailure,
+  }) => fold((s) => s, onFailure ?? (f) => null);
 
-  E? getError<B>({
-    E? Function(S s)? onSuccess,
+  F? getFailure<B>({
+    F? Function(S s)? onSuccess,
   }) => fold(onSuccess ?? (s) => null, (f) => f);
 
-  S successOrThrowError() => fold((s) => s, (e) => throw e as Object);
+  S successOrThrowFailure() => fold((s) => s, (e) => throw e as Object);
 
-  E errorOrThrowSuccess() => fold((s) => throw s as Object, (e) => e);
+  F failureOrThrowSuccess() => fold((s) => throw s as Object, (e) => e);
 
-  Result<SS, E> mapSuccess<SS>(SS Function(S value) func) => fold(
-    (s) => Success<SS, E>(func(s)),
-    Error<SS, E>.new,
+  Result<SS, F> mapSuccess<SS>(SS Function(S value) func) => fold(
+    (s) => Success<SS, F>(func(s)),
+    Failure<SS, F>.new,
   );
 
-  Result<S, EE> mapError<EE>(EE Function(E value) func) => fold(
-    Success<S, EE>.new,
-    (e) => Error<S, EE>(func(e)),
+  Result<S, FF> mapFailure<FF>(FF Function(F value) func) => fold(
+    Success<S, FF>.new,
+    (e) => Failure<S, FF>(func(e)),
   );
 
-  bool get isSuccess => this is Success<S, E>;
-  bool get isError => this is Error<S, E>;
+  bool get isSuccess => this is Success<S, F>;
+  bool get isFailure => this is Failure<S, F>;
 
   @override
   bool operator ==(Object other) => other is Success && other.value == value;
@@ -50,83 +50,83 @@ abstract class Result<S, E> {
   @override
   int get hashCode => value.hashCode;
 
-  static Result<SS, EE> trySuccess<SS, EE>({
+  static Result<SS, FF> trySuccess<SS, FF>({
     required SS Function() success,
-    Result<SS, EE>? Function(Object e, StackTrace stk)? onError,
+    Result<SS, FF>? Function(Object e, StackTrace stk)? onFailure,
   }) {
     try {
       return Success(success());
     } catch (e, stk) {
-      final newError = onError?.call(e, stk);
-      if (newError == null) rethrow;
-      return newError;
+      final newFailure = onFailure?.call(e, stk);
+      if (newFailure == null) rethrow;
+      return newFailure;
     }
   }
 }
 
-class Success<S, E> extends Result<S, E> {
+class Success<S, F> extends Result<S, F> {
   const Success(S super.value) : super._();
 }
 
-class Error<S, E> extends Result<S, E> {
-  const Error(E super.value) : super._();
+class Failure<S, F> extends Result<S, F> {
+  const Failure(F super.value) : super._();
 }
 
-extension FutureResultExtension<S, E> on Future<Result<S, E>> {
+extension FutureResultExtension<S, F> on Future<Result<S, F>> {
   Future<B> fold<B>(
     B Function(S s) onSuccess,
-    B Function(E f) onError,
-  ) => then((result) => result.fold(onSuccess, onError));
+    B Function(F f) onFailure,
+  ) => then((result) => result.fold(onSuccess, onFailure));
 
   Future<B> foldNamed<B>({
     required B Function(S s) success,
-    required B Function(E f) error,
-  }) => then((result) => result.foldNamed(success: success, error: error));
+    required B Function(F f) failure,
+  }) => then((result) => result.foldNamed(success: success, failure: failure));
 
-  Future<E> foldSuccess(E Function(S s) success) =>
+  Future<F> foldSuccess(F Function(S s) success) =>
       then((result) => result.foldSuccess(success));
 
-  Future<S> foldError(S Function(E e) error) =>
-      then((result) => result.foldError(error));
+  Future<S> foldFailure(S Function(F e) failure) =>
+      then((result) => result.foldFailure(failure));
 
   Future<S?> getSuccess<B>({
-    S? Function(E f)? onError,
-  }) => then((result) => result.getSuccess(onError: onError));
+    S? Function(F f)? onFailure,
+  }) => then((result) => result.getSuccess(onFailure: onFailure));
 
-  Future<E?> getError<B>({
-    E? Function(S s)? onSuccess,
-  }) => then((result) => result.getError(onSuccess: onSuccess));
+  Future<F?> getFailure<B>({
+    F? Function(S s)? onSuccess,
+  }) => then((result) => result.getFailure(onSuccess: onSuccess));
 
-  Future<S> successOrThrowError() =>
-      then((result) => result.successOrThrowError());
+  Future<S> successOrThrowFailure() =>
+      then((result) => result.successOrThrowFailure());
 
-  Future<E> errorOrThrowSuccess() =>
-      then((result) => result.errorOrThrowSuccess());
+  Future<F> failureOrThrowSuccess() =>
+      then((result) => result.failureOrThrowSuccess());
 
-  Future<Result<SS, E>> mapSuccess<SS>(SS Function(S value) func) =>
+  Future<Result<SS, F>> mapSuccess<SS>(SS Function(S value) func) =>
       then((result) => result.mapSuccess(func));
 
-  Future<Result<S, EE>> mapError<EE>(EE Function(E value) func) =>
-      then((result) => result.mapError(func));
+  Future<Result<S, FF>> mapFailure<FF>(FF Function(F value) func) =>
+      then((result) => result.mapFailure(func));
 }
 
 extension FutureToResultExtension<T> on Future<T> {
-  Future<Success<T, E>> toSuccess<E>() async => Success(await this);
+  Future<Success<T, F>> toSuccess<F>() async => Success(await this);
 
-  Future<Result<T, E>> trySuccess<E>({
-    E? Function(Object e, StackTrace stk)? onError,
+  Future<Result<T, F>> trySuccess<F>({
+    F? Function(Object e, StackTrace stk)? onFailure,
   }) async {
     try {
       return Success(await this);
     } catch (e, stk) {
-      final newError = onError?.call(e, stk);
-      if (newError == null) rethrow;
-      return Error(newError);
+      final newFailure = onFailure?.call(e, stk);
+      if (newFailure == null) rethrow;
+      return Failure(newFailure);
     }
   }
 
   Future<Result<T, ({E e, StackTrace stk})>>
   tryResult<E extends Object>() async {
-    return trySuccess(onError: (e, stk) => (e: e as E, stk: stk));
+    return trySuccess(onFailure: (e, stk) => (e: e as E, stk: stk));
   }
 }
