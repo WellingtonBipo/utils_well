@@ -50,7 +50,7 @@ class Command<S, F, V> extends ChangeNotifier {
 
   Future<void> call([V? value]) async {
     if (_action == null) {
-      throw const Error(
+      throw CommandError(
         'No action was provided for this command. Either'
         ' provide an action when creating the command or override call method',
       );
@@ -62,7 +62,7 @@ class Command<S, F, V> extends ChangeNotifier {
         vString != 'void' &&
         vString != 'dynamic' &&
         vString != 'null') {
-      throw ArgumentError(
+      throw CommandError(
         'Either provide a value when calling the command or provide a'
         ' getValue function when creating the command.',
       );
@@ -267,6 +267,15 @@ mixin _CommandResultFold<D, E> on _Result<D, E> {
 
   CommandResultFailure<D, E>? get failureOrNull =>
       foldAnyOrNull(onFailure: (result) => result);
+}
+
+class CommandError extends Error {
+  CommandError(this.message);
+
+  final String message;
+
+  @override
+  String toString() => 'CommandError: $message';
 }
 
 extension _R<T> on (T?,)? {

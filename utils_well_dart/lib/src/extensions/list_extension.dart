@@ -63,9 +63,16 @@ extension ListExtension<T> on List<T> {
     int minSequenceRange = 1,
     int? maxSequenceRange,
   }) {
-    assert(sequences > 1);
-    assert(minSequenceRange > 0);
-    assert(maxSequenceRange == null || maxSequenceRange >= minSequenceRange);
+    assert(sequences > 1, 'The number of sequences must be greater than 1');
+    assert(
+      minSequenceRange > 0,
+      'The minimum sequence range must be greater than 0',
+    );
+    assert(
+      maxSequenceRange == null || maxSequenceRange >= minSequenceRange,
+      'The maximum sequence range must be greater than '
+      'or equal to the minimum sequence range',
+    );
     final list = this;
     if (list.length < 2 || sequences <= 1) return null;
     if (list.length < (sequences * minSequenceRange)) return null;

@@ -8,7 +8,8 @@ class NumEditingController<T extends num> extends TextEditingController {
     _formatter = formatter ?? NumInputFormatter<T>();
     assert(
       _formatter._controller == null,
-      'Each NumEditingController must have its own instance of NumInputFormatter',
+      'Each NumEditingController must have its own'
+      ' instance of NumInputFormatter',
     );
     _formatter._controller = this;
     _number = (number, false);
@@ -80,17 +81,16 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
     bool? canBeZero,
     int? lengthLimiting,
     String? leadingText,
-  }) =>
-      NumInputFormatter<T>(
-        thousandSeparator: thousandSeparator ?? this.thousandSeparator,
-        decimalPoint: decimalPoint ?? this.decimalPoint,
-        decimalSeparator: decimalSeparator ?? this.decimalSeparator,
-        signType: signType ?? this.signType,
-        canBeEmpty: canBeEmpty ?? this.canBeEmpty,
-        canBeZero: canBeZero ?? this.canBeZero,
-        lengthLimiting: lengthLimiting ?? this.lengthLimiting,
-        leadingText: leadingText ?? this.leadingText,
-      );
+  }) => NumInputFormatter<T>(
+    thousandSeparator: thousandSeparator ?? this.thousandSeparator,
+    decimalPoint: decimalPoint ?? this.decimalPoint,
+    decimalSeparator: decimalSeparator ?? this.decimalSeparator,
+    signType: signType ?? this.signType,
+    canBeEmpty: canBeEmpty ?? this.canBeEmpty,
+    canBeZero: canBeZero ?? this.canBeZero,
+    lengthLimiting: lengthLimiting ?? this.lengthLimiting,
+    leadingText: leadingText ?? this.leadingText,
+  );
 
   NumEditingController<T>? _controller;
 
@@ -116,7 +116,11 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
       valueString = values.reversed.join(thousandSeparator);
     }
     if (valueSplit.length == 1) return '${sign(v)}$valueString';
-    return '$leadingText${sign(v)}$valueString$decimalSeparator${valueSplit.last}';
+    return '$leadingText'
+        '${sign(v)}'
+        '$valueString'
+        '$decimalSeparator'
+        '${valueSplit.last}';
   }
 
   T? fromText(String text) => _fromText(text).$1;
@@ -178,9 +182,9 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
   }
 
   TextEditingValue _editingValue(String text) => TextEditingValue(
-        text: text,
-        selection: TextSelection.collapsed(offset: text.length),
-      );
+    text: text,
+    selection: TextSelection.collapsed(offset: text.length),
+  );
 }
 
 enum NumInputFormatterSignType {
@@ -188,7 +192,8 @@ enum NumInputFormatterSignType {
   positiveOrNegative,
   alwaysPositive,
   alwaysNegative,
-  showNegative;
+  showNegative
+  ;
 
   String _sign(String text) {
     switch (this) {
@@ -207,7 +212,9 @@ enum NumInputFormatterSignType {
         final startsPos = text.startsWith('+');
         if (startsPos) t = text.replaceFirst('+', '');
         final containsPos = t.contains('+');
-        var posSign = this == NumInputFormatterSignType.showNegative ? '' : '+';
+        final posSign = this == NumInputFormatterSignType.showNegative
+            ? ''
+            : '+';
         if (startsPos) return containsNeg ? posSign : '-';
         if (startsNeg) return containsPos ? posSign : '-';
         if (containsNeg) return '-';
