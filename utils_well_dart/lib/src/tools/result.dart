@@ -50,6 +50,16 @@ abstract class Result<S, F> {
   @override
   int get hashCode => value.hashCode;
 
+  static Result<SS, FF> trySuccessOr<SS, FF>({
+    required SS Function() success,
+    required FF Function(Object e, StackTrace stk) onFailure,
+  }) {
+    return trySuccess(
+      success: success,
+      onFailure: (e, stk) => Failure(onFailure(e, stk)),
+    );
+  }
+
   static Result<SS, FF> trySuccess<SS, FF>({
     required SS Function() success,
     Result<SS, FF>? Function(Object e, StackTrace stk)? onFailure,

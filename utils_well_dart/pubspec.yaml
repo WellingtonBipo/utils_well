@@ -1,6 +1,6 @@
 name: utils_well_dart
 description: A starting point for Dart libraries or applications.
-version: 1.0.1
+version: 1.0.2
 publish_to: none
 
 environment:
