@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:utils_well_dart/utils_well_dart.dart';
+
 abstract class Result<S, F> {
   const Result._(this.value);
 
@@ -50,13 +52,17 @@ abstract class Result<S, F> {
   @override
   int get hashCode => value.hashCode;
 
-  static Result<SS, FF> trySuccessOr<SS, FF>({
-    required SS Function() success,
-    required FF Function(Object e, StackTrace stk) onFailure,
-  }) {
-    return trySuccess(
+  static FutureOr<Result<SS, FF>> trySuccessOr<SS, FF>({
+    required FutureOr<SS> Function() success,
+    required FutureOr<FF> Function(Object e, StackTrace stk) onFailure,
+  }) async {
+    final result = trySuccess(
       success: success,
-      onFailure: (e, stk) => Failure(onFailure(e, stk)),
+      onFailure: (e, stk) => Failure((e, stk)),
+    );
+    if (result.isSuccess) return Success(await success());
+    return result.failureOrThrowSuccess().let(
+      (e) async => Failure(await onFailure(e.$1, e.$2)),
     );
   }
 
