@@ -14,4 +14,5 @@ export 'src/extensions/num_extension.dart';
 export 'src/extensions/string_extension.dart';
 export 'src/tools/debouncer.dart';
 export 'src/tools/map_reader.dart';
+export 'src/tools/notifier.dart';
 export 'src/tools/result.dart';
