@@ -50,20 +50,18 @@ abstract class Result<S, F> {
   @override
   int get hashCode => value.hashCode;
 
+  @Deprecated('Use tryCatch instead')
   static FutureOr<Result<SS, FF>> trySuccessOr<SS, FF>({
     required FutureOr<SS> Function() success,
     required FutureOr<FF> Function(Object e, StackTrace stk) onFailure,
   }) async {
-    final result = trySuccess(
+    return await tryCatch(
       success: success,
-      onFailure: (e, stk) => Failure((e, stk)),
-    );
-    return result.fold(
-      (s) => Success(s),
-      (e) async => Failure(await onFailure(e.$1, e.$2)),
+      onFailure: onFailure,
     );
   }
 
+  @Deprecated('Use tryCatch instead')
   static Result<SS, FF> trySuccess<SS, FF>({
     required SS Function() success,
     Result<SS, FF>? Function(Object e, StackTrace stk)? onFailure,
@@ -74,6 +72,18 @@ abstract class Result<S, F> {
       final newFailure = onFailure?.call(e, stk);
       if (newFailure == null) rethrow;
       return newFailure;
+    }
+  }
+
+  static FutureOr<Result<SS, FF>> tryCatch<SS, FF>({
+    required FutureOr<SS> Function() success,
+    FutureOr<FF> Function(Object e, StackTrace stk)? onFailure,
+  }) async {
+    try {
+      return Success(await success());
+    } catch (e, stk) {
+      if (onFailure == null) rethrow;
+      return Failure(await onFailure(e, stk));
     }
   }
 }
