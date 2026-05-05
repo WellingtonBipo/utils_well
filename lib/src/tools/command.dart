@@ -110,6 +110,28 @@ class Command<S, F, V> extends ChangeNotifier {
     _disposed = true;
     super.dispose();
   }
+
+  final List<State> _stateListeners = [];
+
+  CommandResult<S, F> listenResult(BuildContext context) {
+    var setState = () {};
+    if (context is StatefulElement) {
+      final state = context.state;
+      if (_stateListeners.contains(state)) return result;
+      setState = () {
+        if (!context.mounted) {
+          _stateListeners.remove(state);
+          removeListener(setState);
+          return;
+        }
+        // ignore: invalid_use_of_protected_member
+        state.setState(() {});
+      };
+      _stateListeners.add(state);
+      addListener(setState);
+    }
+    return result;
+  }
 }
 
 abstract interface class CommandResult<D, E> extends _Result<D, E>

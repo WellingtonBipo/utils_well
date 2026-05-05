@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:utils_well_dart/utils_well_dart.dart';
-
 abstract class Result<S, F> {
   const Result._(this.value);
 
