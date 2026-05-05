@@ -60,8 +60,8 @@ abstract class Result<S, F> {
       success: success,
       onFailure: (e, stk) => Failure((e, stk)),
     );
-    if (result.isSuccess) return Success(await success());
-    return result.failureOrThrowSuccess().let(
+    return result.fold(
+      (s) => Success(s),
       (e) async => Failure(await onFailure(e.$1, e.$2)),
     );
   }
