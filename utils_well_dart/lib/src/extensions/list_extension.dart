@@ -1,3 +1,5 @@
+import 'package:utils_well_dart/src/extensions/iterable_extension.dart';
+
 extension ListExtension<T> on List<T> {
   void sortInverse([int Function(T, T)? compare]) {
     if (compare == null && firstOrNull is! Comparable) return;
@@ -98,4 +100,12 @@ extension ListExtension<T> on List<T> {
     }
     return null;
   }
+}
+
+extension ListEnumExtension<T extends Enum> on List<T> {
+  T getByName(String? name, {T Function()? orElse}) =>
+      firstWhere((e) => e.name == name, orElse: orElse);
+
+  T? getByNameOrNull(String? name, {T? Function()? orElse}) =>
+      firstWhereOrNull((e) => e.name == name) ?? orElse?.call();
 }
