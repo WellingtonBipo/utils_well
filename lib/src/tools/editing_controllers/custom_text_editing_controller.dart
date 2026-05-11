@@ -5,12 +5,12 @@ class CustomTextEditingController<T> extends TextEditingController {
   CustomTextEditingController({
     required this.toData,
     required this.fromData,
-    T? initialValue,
-  }) : super(text: initialValue?.let(fromData));
+    required T initialData,
+  }) : super(text: fromData(initialData));
 
-  final T Function(String) toData;
-  final String Function(T) fromData;
+  final T Function(String text) toData;
+  final String Function(T data) fromData;
 
-  T? get data => text.let(toData);
-  set data(T? value) => text = value?.let(fromData) ?? '';
+  T get data => text.let(toData);
+  set data(T value) => text = fromData(value);
 }
