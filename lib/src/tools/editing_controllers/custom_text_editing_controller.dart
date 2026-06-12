@@ -3,9 +3,9 @@ import 'package:utils_well_dart/utils_well_dart.dart';
 
 class CustomTextEditingController<T> extends TextEditingController {
   CustomTextEditingController({
+    required T initialData,
     required this.toData,
     required this.fromData,
-    required T initialData,
   }) : super(text: fromData(initialData));
 
   final T Function(String text) toData;

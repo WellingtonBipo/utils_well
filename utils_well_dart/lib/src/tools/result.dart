@@ -31,14 +31,27 @@ abstract class Result<S, F> {
 
   F failureOrThrowSuccess() => fold((s) => throw s as Object, (e) => e);
 
-  Result<SS, F> mapSuccess<SS>(SS Function(S value) func) => fold(
-    (s) => Success<SS, F>(func(s)),
-    Failure<SS, F>.new,
+  Result<SS, FF> map<SS, FF>(
+    SS Function(S value) onSuccess,
+    FF Function(F failure) onFailure,
+  ) => fold(
+    (s) => Success<SS, FF>(onSuccess(s)),
+    (f) => Failure<SS, FF>(onFailure(f)),
   );
 
-  Result<S, FF> mapFailure<FF>(FF Function(F value) func) => fold(
-    Success<S, FF>.new,
-    (e) => Failure<S, FF>(func(e)),
+  Result<SS, FF> mapNamed<SS, FF>({
+    required SS Function(S value) onSuccess,
+    required FF Function(F failure) onFailure,
+  }) => map(onSuccess, onFailure);
+
+  Result<SS, F> mapSuccess<SS>(SS Function(S value) func) => map(
+    (s) => func(s),
+    (f) => f,
+  );
+
+  Result<S, FF> mapFailure<FF>(FF Function(F value) func) => map(
+    (e) => e,
+    (e) => func(e),
   );
 
   bool get isSuccess => this is Success<S, F>;
