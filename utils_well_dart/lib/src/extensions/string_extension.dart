@@ -12,6 +12,11 @@ extension StringExtension on String {
     return index == -1 ? this : substring(0, index);
   }
 
+  String? characterAt(int index) {
+    if (index < 0 || index >= length) return null;
+    return this[index];
+  }
+
   String substringMax(int start, [int? end]) {
     if (end == null || end > length) return substring(start, length);
     return substring(start, end);

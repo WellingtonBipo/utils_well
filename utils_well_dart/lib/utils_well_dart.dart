@@ -2,6 +2,7 @@ library;
 
 export 'package:equatable/equatable.dart';
 
+export 'src/extensions/bool_extension.dart';
 export 'src/extensions/date_time_extension.dart';
 export 'src/extensions/double_to_currency_extension.dart';
 export 'src/extensions/future_extension.dart';
@@ -11,6 +12,8 @@ export 'src/extensions/let_extension.dart';
 export 'src/extensions/list_extension.dart';
 export 'src/extensions/map_extension.dart';
 export 'src/extensions/num_extension.dart';
+export 'src/extensions/object_extension.dart';
+export 'src/extensions/record_extension.dart';
 export 'src/extensions/string_extension.dart';
 export 'src/tools/debouncer.dart';
 export 'src/tools/list_class.dart';

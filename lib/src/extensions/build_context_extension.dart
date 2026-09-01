@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 extension BuildContextExtension on BuildContext {
+  ThemeData get theme => Theme.of(this);
+
+  double scale(double i) => MediaQuery.textScalerOf(this).scale(i);
+
   Rect? findRenderObjectLocalToGlobalRect(
     Offset point, {
     RenderObject? ancestor,

@@ -28,6 +28,8 @@ linter:
     use_setters_to_change_properties: false
     only_throw_errors: false
     prefer_void_to_null: false
+    avoid_multiple_declarations_per_line: false
+    prefer_constructors_over_static_methods: false
     always_declare_return_types: true
     always_put_required_named_parameters_first: true
     always_use_package_imports: true
@@ -43,7 +45,6 @@ linter:
     avoid_implementing_value_types: true
     avoid_init_to_null: true
     avoid_js_rounded_ints: true
-    avoid_multiple_declarations_per_line: true
     avoid_print: true
     avoid_private_typedef_functions: true
     avoid_redundant_argument_values: true
@@ -112,7 +113,6 @@ linter:
     prefer_conditional_assignment: true
     prefer_const_constructors_in_immutables: true
     prefer_const_declarations: true
-    prefer_constructors_over_static_methods: true
     prefer_contains: true
     prefer_final_fields: true
     prefer_final_in_for_each: true
@@ -183,6 +183,3 @@ linter:
     use_to_and_as_if_applicable: true
     valid_regexps: true
     void_checks: true
-analyzer:
-  errors:
-    prefer_constructors_over_static_methods: ignore
