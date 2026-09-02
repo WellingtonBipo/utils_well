@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:utils_well_dart/utils_well_dart.dart';
 
 class NumEditingController<T extends num> extends TextEditingController {
   NumEditingController({T? number, NumInputFormatter<T>? formatter}) {
