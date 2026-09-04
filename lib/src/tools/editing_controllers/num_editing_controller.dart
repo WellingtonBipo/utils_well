@@ -211,8 +211,9 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
 
     if (alwaysShowDecimalPoint) {
       if (decimalPoint > 0) {
-        final decimalIndex = t.length - decimalPoint;
         t = t.padLeft(decimalPoint + 1, '0');
+        // final hasDecSep = t.contains(decimalSeparator);
+        final decimalIndex = t.length - decimalPoint;
         t = '${t.substring(0, decimalIndex)}.${t.substring(decimalIndex)}';
       }
     } else {
