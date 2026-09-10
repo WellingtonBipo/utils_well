@@ -14,7 +14,8 @@ class NumEditingController<T extends num> extends TextEditingController {
     );
     _formatter._controller = this;
     _number = (number, false);
-    super.value = _formatter._editingValue(_formatter._toText(number));
+    final text = _formatter._toText(_number.$1);
+    super.value = _formatter._editingValue(text);
     _oldValue = super.value;
     _canNotify = true;
   }
