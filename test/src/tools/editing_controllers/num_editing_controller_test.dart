@@ -13,7 +13,7 @@ set _text(String value) => _controller.text = value;
 num? get _number => _controller.number;
 
 void main() {
-  void setValue(num v) {
+  void setValue(double v) {
     _controller = NumEditingController(number: v, formatter: _formatter());
   }
 
@@ -175,7 +175,7 @@ void main() {
     });
 
     test('12,01', () async {
-      setValue(12.0);
+      setValue(12);
       _text = '12,01';
       expect(_number, 12.01);
       expect(_text, '12,01');

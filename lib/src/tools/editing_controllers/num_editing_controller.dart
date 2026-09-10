@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:utils_well_dart/utils_well_dart.dart';
 
-class NumEditingController<T extends num> extends TextEditingController {
-  NumEditingController({T? number, NumInputFormatter<T>? formatter}) {
-    _formatter = formatter ?? NumInputFormatter<T>();
+class NumEditingController extends TextEditingController {
+  NumEditingController({double? number, NumInputFormatter? formatter}) {
+    _formatter = formatter ?? NumInputFormatter();
     assert(
       _formatter._controller == null,
       'Each NumEditingController must have its own'
@@ -14,28 +14,22 @@ class NumEditingController<T extends num> extends TextEditingController {
     );
     _formatter._controller = this;
     _number = (number, false);
-    final text = number == null
-        ? _formatter._toText()
-        : _formatter._toText(number);
-    super.value = _formatter._editingValue(text);
+    super.value = _formatter._editingValue(_formatter._toText(number));
     _oldValue = super.value;
     _canNotify = true;
   }
 
-  late NumInputFormatter<T> _formatter;
-  NumInputFormatter<T> get formatter => _formatter;
+  late NumInputFormatter _formatter;
+  NumInputFormatter get formatter => _formatter;
 
   bool _canNotify = false;
 
   var _oldValue = TextEditingValue.empty;
-  late (T?, bool settedByFormatter) _number;
+  late (double?, bool settedByFormatter) _number;
 
-  T? get number => _number.$1;
-  set number(T? value) {
-    final text = value == null
-        ? _formatter._toText()
-        : _formatter._toText(value);
-    if (_formatter.textHigherThanLength(text)) return;
+  double? get number => _number.$1;
+  set number(double? value) {
+    if (_formatter.textHigherThanLength(_formatter._toText(value))) return;
     _number = (value, false);
     super.value = _formatter._editingValue(text);
   }
@@ -58,7 +52,7 @@ class NumEditingController<T extends num> extends TextEditingController {
   }
 }
 
-final class NumInputFormatter<T extends num> extends TextInputFormatter {
+final class NumInputFormatter extends TextInputFormatter {
   NumInputFormatter({
     this.thousandSeparator = '',
     int decimalPoint = 0,
@@ -81,7 +75,7 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
   final int? lengthLimiting;
   final String? leadingText;
 
-  NumInputFormatter<T> copyWith({
+  NumInputFormatter copyWith({
     String? thousandSeparator,
     int? decimalPoint,
     bool? alwaysShowDecimalPoint,
@@ -91,7 +85,7 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
     bool? canBeZero,
     int? lengthLimiting,
     String? leadingText,
-  }) => NumInputFormatter<T>(
+  }) => NumInputFormatter(
     thousandSeparator: thousandSeparator ?? this.thousandSeparator,
     decimalPoint: decimalPoint ?? this.decimalPoint,
     alwaysShowDecimalPoint:
@@ -104,18 +98,18 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
     leadingText: leadingText ?? this.leadingText,
   );
 
-  NumEditingController<T>? _controller;
+  NumEditingController? _controller;
 
-  String sign(T? value) => value == null || value == 0 || value == 0.0
+  String sign(double? value) => value == null || value == 0 || value == 0.0
       ? ''
       : signType._sign(value.toString()).$2;
 
-  String toText(T? value) => _toText(value);
+  String toText(double? value) => _toText(value);
 
-  String _toText([T? value, bool? isPositive, String? newText]) {
+  String _toText([double? value, bool? isPositive, String? newText]) {
     if (value == null && canBeEmpty) return '';
     if (value == 0 && canBeEmpty && !canBeZero) return '';
-    final v = value ?? (canBeZero ? 0 : (1 / pow(10, decimalPoint))) as T;
+    final v = value ?? (canBeZero ? 0 : (1 / pow(10, decimalPoint)));
     final valueSplit = v.toStringAsFixed(decimalPoint).split('.');
     var valueString = valueSplit.first;
     var s = '';
@@ -154,9 +148,9 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
     return '$valueString$decimalSeparator${valueSplit.last}';
   }
 
-  T? fromText(String text) => _fromText(text).$1;
+  double? fromText(String text) => _fromText(text).$1;
 
-  (T?, bool useOldValue, bool? isPositive) _fromText(String t) {
+  (double?, bool useOldValue, bool? isPositive) _fromText(String t) {
     var text = t.trim();
     if (text.isEmpty && canBeEmpty) return (null, false, null);
     if (text == '-' || text == '+') return (null, false, null);
@@ -171,19 +165,12 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
     final valueString = _formattedToNumString(text);
     if (textHigherThanLength(valueString)) return (null, true, null);
     final isPositive = signType._sign(text).$1;
-    final value = _getTypedNumber(valueString);
+    final value = double.tryParse(valueString);
     if (value != 0) return (value, false, isPositive);
     if (!canBeZero && !canBeEmpty) return (null, true, isPositive);
     if (!canBeEmpty) return (value, false, isPositive);
     if (!canBeZero) return (null, false, isPositive);
     return (value, false, isPositive);
-  }
-
-  T? _getTypedNumber(String v) {
-    if (T == num) return num.tryParse(v) as T?;
-    if (T == int) return int.tryParse(v) as T?;
-    if (T == double) return double.tryParse(v) as T?;
-    return null;
   }
 
   bool textHigherThanLength(String text) {
@@ -201,12 +188,12 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
     if (useOldValue) return _editingValue(oldValue.text);
     final lastNumber = _controller != null
         ? _controller!._number.$1
-        : (num.parse(_formattedToNumString(oldValue.text)) as T);
+        : double.parse(_formattedToNumString(oldValue.text));
     var text = _toText(value, isPositive, newValue.text);
     bool isDeleting() => oldValue.text.startsWith(RegExp(newValue.text));
     if (canBeEmpty && lastNumber == 0 && isDeleting()) text = '';
     var n = text.isEmpty ? null : value;
-    if (n != null && isPositive == false) n = (n * -1) as T;
+    if (n != null && isPositive == false) n = n * -1;
     _controller?._number = (n, true);
     return _editingValue(text);
   }
@@ -217,7 +204,6 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
     if (alwaysShowDecimalPoint) {
       if (decimalPoint > 0) {
         t = t.padLeft(decimalPoint + 1, '0');
-        // final hasDecSep = t.contains(decimalSeparator);
         final decimalIndex = t.length - decimalPoint;
         t = '${t.substring(0, decimalIndex)}.${t.substring(decimalIndex)}';
       }
