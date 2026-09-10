@@ -14,7 +14,9 @@ class NumEditingController<T extends num> extends TextEditingController {
     );
     _formatter._controller = this;
     _number = (number, false);
-    final text = _formatter._toText(_number.$1);
+    final text = number == null
+        ? _formatter._toText()
+        : _formatter._toText(number);
     super.value = _formatter._editingValue(text);
     _oldValue = super.value;
     _canNotify = true;
@@ -30,7 +32,9 @@ class NumEditingController<T extends num> extends TextEditingController {
 
   T? get number => _number.$1;
   set number(T? value) {
-    final text = _formatter._toText(value);
+    final text = value == null
+        ? _formatter._toText()
+        : _formatter._toText(value);
     if (_formatter.textHigherThanLength(text)) return;
     _number = (value, false);
     super.value = _formatter._editingValue(text);
@@ -108,7 +112,7 @@ final class NumInputFormatter<T extends num> extends TextInputFormatter {
 
   String toText(T? value) => _toText(value);
 
-  String _toText(T? value, [bool? isPositive, String? newText]) {
+  String _toText([T? value, bool? isPositive, String? newText]) {
     if (value == null && canBeEmpty) return '';
     if (value == 0 && canBeEmpty && !canBeZero) return '';
     final v = value ?? (canBeZero ? 0 : (1 / pow(10, decimalPoint))) as T;
