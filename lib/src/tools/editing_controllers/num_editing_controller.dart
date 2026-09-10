@@ -14,7 +14,7 @@ class NumEditingController<T extends num> extends TextEditingController {
     );
     _formatter._controller = this;
     _number = (number, false);
-    super.value = _formatter._editingValue(_formatter.toText(number));
+    super.value = _formatter._editingValue(_formatter._toText(number));
     _oldValue = super.value;
     _canNotify = true;
   }
@@ -29,7 +29,7 @@ class NumEditingController<T extends num> extends TextEditingController {
 
   T? get number => _number.$1;
   set number(T? value) {
-    final text = _formatter.toText(value);
+    final text = _formatter._toText(value);
     if (_formatter.textHigherThanLength(text)) return;
     _number = (value, false);
     super.value = _formatter._editingValue(text);
