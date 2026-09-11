@@ -26,4 +26,9 @@ class ListNotifier<T> extends ListBase<T> with ChangeNotifier {
     _l = list;
     notifyListeners();
   }
+
+  void clearAndAddAll(Iterable<T> newList) {
+    _l = newList.toList();
+    notifyListeners();
+  }
 }
