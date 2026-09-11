@@ -31,4 +31,10 @@ class ListNotifier<T> extends ListBase<T> with ChangeNotifier {
     _l = newList.toList();
     notifyListeners();
   }
+
+  @override
+  void addAll(Iterable<T> iterable) {
+    _l.addAll(iterable);
+    notifyListeners();
+  }
 }

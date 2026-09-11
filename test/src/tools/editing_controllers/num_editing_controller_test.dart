@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_lambdas
+// ignore_for_file: avoid_redundant_argument_values, unnecessary_lambdas
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:utils_well/utils_well.dart';
@@ -34,6 +34,12 @@ void main() {
 
     test('empty', () async {
       expect(_number, null);
+      expect(_text, '');
+      _controller.number = 1;
+      expect(_number, 1);
+      expect(_text, '1,00');
+      _controller.number = null;
+      expect(_number, isNull);
       expect(_text, '');
     });
 

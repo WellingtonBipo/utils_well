@@ -30,7 +30,8 @@ class NumEditingController extends TextEditingController {
   double? get number => _number.$1;
   set number(num? value) {
     final v = value?.toDouble();
-    if (_formatter.textHigherThanLength(_formatter._toText(v))) return;
+    final text = _formatter._toText(v);
+    if (_formatter.textHigherThanLength(text)) return;
     _number = (v, false);
     super.value = _formatter._editingValue(text);
   }
