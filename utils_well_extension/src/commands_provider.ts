@@ -25,6 +25,13 @@ class Item extends vscode.TreeItem {
         return i;
     }
 
+    static tagVersionCreator(): Item {
+        const i = new Item('Tag version creator', '');
+        i.contextValue = `${_extensionId}.tagVersionCreator`;
+        i.iconPath = new vscode.ThemeIcon('tag');
+        return i;
+    }
+
     folders: string[] = [];
 
     get finalLabel(): string {
@@ -49,7 +56,7 @@ class CommandsProvider implements vscode.TreeDataProvider<Item> {
         const config = vscode.workspace.getConfiguration(_extensionId);
         const commands = config.get<{ list: any[], config: any[] }>('commands');
         if (!commands) return;
-        this.items = [Item.featureCreator(), new Item('')];
+        this.items = [Item.featureCreator(), Item.tagVersionCreator(), new Item('')];
         for (let commandData of commands.list || []) {
             if (!commandData && typeof commandData !== 'object') continue;
             const cmd = commandData['command'];

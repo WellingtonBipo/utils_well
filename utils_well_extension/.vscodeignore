@@ -9,3 +9,7 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+
+# React UI: only the built bundle is used by the webview
+react_vite_ui/**
+!react_vite_ui/build/**

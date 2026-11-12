@@ -24,6 +24,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@types/react": "^19.1.8",
@@ -139,6 +140,11 @@
           "command": "devUtilsWell.featureCreator",
           "when": "viewItem == devUtilsWell.featureCreator",
           "group": "inline@3"
+        },
+        {
+          "command": "devUtilsWell.tagVersionCreator",
+          "when": "viewItem == devUtilsWell.tagVersionCreator",
+          "group": "inline@4"
         }
       ]
     },
@@ -169,7 +175,16 @@
           "light": "media/logo_light.svg",
           "dark": "media/logo_dark.svg"
         }
+      },
+      {
+        "category": "Utils Well",
+        "command": "devUtilsWell.tagVersionCreator",
+        "title": "Tag Version Creator",
+        "icon": "$(tag)"
       }
     ]
+  },
+  "dependencies": {
+    "js-yaml": "^4.3.2"
   }
 }
