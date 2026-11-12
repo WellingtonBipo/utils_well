@@ -110,9 +110,14 @@
     "menus": {
       "view/title": [
         {
+          "command": "devUtilsWell.addCommand",
+          "when": "view == devUtilsWell-commands",
+          "group": "navigation@1"
+        },
+        {
           "command": "devUtilsWell.openUserSettings",
           "when": "view == devUtilsWell-commands",
-          "group": "navigation"
+          "group": "navigation@2"
         }
       ],
       "view/item/context": [
@@ -127,14 +132,34 @@
           "group": "navigation@2"
         },
         {
+          "command": "devUtilsWell.editCommand",
+          "when": "viewItem == devUtilsWell.runTerminalCommand",
+          "group": "navigation@3"
+        },
+        {
+          "command": "devUtilsWell.editCommand",
+          "when": "viewItem == devUtilsWell.runTerminalCommand",
+          "group": "inline@2"
+        },
+        {
           "command": "devUtilsWell.copyCommand",
           "when": "viewItem == devUtilsWell.runTerminalCommand",
-          "group": "inline@1"
+          "group": "inline@3"
         },
         {
           "command": "devUtilsWell.runCommand",
           "when": "viewItem == devUtilsWell.runTerminalCommand",
-          "group": "inline@2"
+          "group": "inline@4"
+        },
+        {
+          "command": "devUtilsWell.deleteCommand",
+          "when": "viewItem == devUtilsWell.runTerminalCommand",
+          "group": "navigation@4"
+        },
+        {
+          "command": "devUtilsWell.deleteCommand",
+          "when": "viewItem == devUtilsWell.runTerminalCommand",
+          "group": "inline@1"
         },
         {
           "command": "devUtilsWell.featureCreator",
@@ -159,7 +184,7 @@
         "category": "Utils Well",
         "command": "devUtilsWell.copyCommand",
         "title": "Copy",
-        "icon": "$(clippy)"
+        "icon": "$(copy)"
       },
       {
         "category": "Utils Well",
@@ -181,6 +206,24 @@
         "command": "devUtilsWell.tagVersionCreator",
         "title": "Tag Version Creator",
         "icon": "$(tag)"
+      },
+      {
+        "category": "Utils Well",
+        "command": "devUtilsWell.addCommand",
+        "title": "Add Command",
+        "icon": "$(add)"
+      },
+      {
+        "category": "Utils Well",
+        "command": "devUtilsWell.editCommand",
+        "title": "Edit Command",
+        "icon": "$(edit)"
+      },
+      {
+        "category": "Utils Well",
+        "command": "devUtilsWell.deleteCommand",
+        "title": "Delete Command",
+        "icon": "$(trash)"
       }
     ]
   },
